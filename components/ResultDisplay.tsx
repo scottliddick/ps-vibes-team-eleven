@@ -1,6 +1,7 @@
 'use client';
 
 import { Match, Player, Move } from '@/lib/types';
+import { useEffect, useRef, useState } from 'react';
 
 interface ResultDisplayProps {
   match: Match;
@@ -14,7 +15,34 @@ const moveEmoji: Record<Move, string> = {
   scissors: '✂️',
 };
 
+function getWinnerVideo(winnerMove: Move, loserMove: Move): string | null {
+  if (winnerMove === 'paper' && loserMove === 'rock') {
+    return '/winner-videos/paper-covers-rock.mp4';
+  }
+  if (winnerMove === 'scissors' && loserMove === 'paper') {
+    return '/winner-videos/scissors-beat-paper.mp4';
+  }
+  if (winnerMove === 'rock' && loserMove === 'scissors') {
+    return '/winner-videos/rock-beats-scissors.mp4';
+  }
+  return null;
+}
+
 export default function ResultDisplay({ match, winner, onContinue }: ResultDisplayProps) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoEnded, setVideoEnded] = useState(false);
+
+  const winnerMove = winner.id === match.player1.id ? match.player1Move : match.player2Move;
+  const loserMove = winner.id === match.player1.id ? match.player2Move : match.player1Move;
+  const videoSrc = winnerMove && loserMove ? getWinnerVideo(winnerMove, loserMove) : null;
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.play().catch(err => {
+        console.error('Video autoplay failed:', err);
+      });
+    }
+  }, []);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-8">
@@ -22,6 +50,18 @@ export default function ResultDisplay({ match, winner, onContinue }: ResultDispl
         <h1 className="text-4xl font-bold text-white text-center mb-8">
           {match.round === 1 ? 'Semifinal' : 'Final'} Result
         </h1>
+
+        {videoSrc && (
+          <div className="mb-8 rounded-2xl overflow-hidden shadow-2xl">
+            <video
+              ref={videoRef}
+              src={videoSrc}
+              className="w-full max-h-[350px] object-contain"
+              onEnded={() => setVideoEnded(true)}
+              playsInline
+            />
+          </div>
+        )}
 
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 mb-8">
           <div className="grid grid-cols-3 gap-4 items-center mb-8">

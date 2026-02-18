@@ -36,8 +36,9 @@ export default function Home() {
 
   const handleStartMatch = (match: Match) => {
     const ghosts = gameState.players.filter(p => p.isGhost);
+    const shouldGhostsCurse = Math.random() < 0.5;
     
-    if (ghosts.length > 0) {
+    if (ghosts.length > 0 && shouldGhostsCurse) {
       setGameState({
         ...gameState,
         phase: { type: 'curse', match, ghosts, curseIndex: 0 },
