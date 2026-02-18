@@ -22,6 +22,7 @@ export type GamePhase =
   | { type: 'bracket'; matches: Match[]; currentRound: number }
   | { type: 'curse'; match: Match; ghosts: Player[]; curseIndex: number }
   | { type: 'throw'; match: Match; currentPlayer: 1 | 2 }
+  | { type: 'waiting'; match: Match }
   | { type: 'result'; match: Match; winner: Player }
   | { type: 'victory'; winner: Player };
 

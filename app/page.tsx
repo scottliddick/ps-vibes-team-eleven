@@ -9,6 +9,7 @@ import ThrowInterface from '@/components/ThrowInterface';
 import CurseInterface from '@/components/CurseInterface';
 import ResultDisplay from '@/components/ResultDisplay';
 import VictoryScreen from '@/components/VictoryScreen';
+import WaitingScreen from '@/components/WaitingScreen';
 
 export default function Home() {
   const [gameState, setGameState] = useState<GameState>({
@@ -85,7 +86,7 @@ export default function Home() {
       
       setGameState({
         ...gameState,
-        phase: { type: 'throw', match: updatedMatch, currentPlayer: 2 },
+        phase: { type: 'waiting', match: updatedMatch },
       });
     } else {
       const actualMove = applyCurse(match.player2, move);
@@ -116,6 +117,15 @@ export default function Home() {
         });
       }
     }
+  };
+
+  const handleContinueToPlayer2 = () => {
+    if (gameState.phase.type !== 'waiting') return;
+
+    setGameState({
+      ...gameState,
+      phase: { type: 'throw', match: gameState.phase.match, currentPlayer: 2 },
+    });
   };
 
   const handleContinue = () => {
@@ -200,6 +210,10 @@ export default function Home() {
   if (phase.type === 'throw') {
     const currentPlayer = phase.currentPlayer === 1 ? phase.match.player1 : phase.match.player2;
     return <ThrowInterface player={currentPlayer} onThrow={handleThrow} />;
+  }
+
+  if (phase.type === 'waiting') {
+    return <WaitingScreen nextPlayer={phase.match.player2} onContinue={handleContinueToPlayer2} />;
   }
 
   if (phase.type === 'result') {
